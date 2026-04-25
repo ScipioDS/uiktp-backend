@@ -2,6 +2,7 @@ package uiktp.team19.web.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,9 +17,12 @@ public class UserController {
     private UserRepo userRepo;
 
     @GetMapping("/info")
-    public User getUserDetails(){
-        String userName = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public User getUserDetails() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
+        String userName = userDetails.getUsername();
         return userRepo.findByUsername(userName).get();
     }
 }
