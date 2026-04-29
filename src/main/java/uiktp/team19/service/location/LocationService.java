@@ -72,4 +72,8 @@ public class LocationService {
         User user = this.userService.loadJustUserById(uuid);
         return this.locationRepository.findAllByUser(user);
     }
+
+    public List<Location> saveAll(List<Location> locations) {
+        return locationRepository.saveAll(locations);
+    }
 }
