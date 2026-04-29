@@ -2,6 +2,7 @@ package uiktp.team19.web.weather_api;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uiktp.team19.model.helper.LocationHelper;
@@ -50,5 +51,10 @@ public class WeatherAPIFetchingController {
         locationHelper.setLongitude((float) 22.4314);
 
         return weatherDataService.acquireFullHourlyDataDTO(locationHelper);
+    }
+
+    @GetMapping("/full/{locationId}")
+    public List<FullWeatherDataDTO> getFullWeatherData(@PathVariable Long locationId) throws Exception {
+        return weatherDataService.acquireFullHourlyDataDTO(locationId);
     }
 }
