@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uiktp.team19.model.helper.LocationHelper;
 import uiktp.team19.model.helper.WeatherAPIResultHelper;
+import uiktp.team19.model.weather_api.FullWeatherData;
 import uiktp.team19.model.weather_api.FullWeatherDataDTO;
+import uiktp.team19.repository.FullWeatherDataRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class WeatherDataService {
+    private final FullWeatherDataRepository fullWeatherDataRepository;
     private final WeatherAPIFetchingService weatherAPIFetchingService;
 
     public List<FullWeatherDataDTO> acquireFullHourlyDataDTO(LocationHelper helper) throws Exception {
@@ -55,6 +58,37 @@ public class WeatherDataService {
         return results;
     }
 
+    public List<FullWeatherData> saveWeatherData(List<FullWeatherDataDTO> dtos) {
+        List<FullWeatherData> entities = dtos.stream()
+                .map(this::toEntity)
+                .toList();
+
+        return fullWeatherDataRepository.saveAll(entities);
+    }
+
+    private FullWeatherData toEntity(FullWeatherDataDTO dto) {
+        FullWeatherData entity = new FullWeatherData();
+        entity.setDateTime(dto.dateTime());
+        entity.setSoilTemperature0cm(dto.soilTemperature0cm());
+        entity.setSoilTemperature6cm(dto.soilTemperature6cm());
+        entity.setSoilTemperature18cm(dto.soilTemperature18cm());
+        entity.setSoilTemperature54cm(dto.soilTemperature54cm());
+        entity.setSoilMoisture0To1cm(dto.soilMoisture0To1cm());
+        entity.setSoilMoisture1To3cm(dto.soilMoisture1To3cm());
+        entity.setSoilMoisture3To9cm(dto.soilMoisture3To9cm());
+        entity.setSoilMoisture9To27cm(dto.soilMoisture9To27cm());
+        entity.setSoilMoisture27To81cm(dto.soilMoisture27To81cm());
+        entity.setPrecipitationProbability(dto.precipitationProbability());
+        entity.setRain(dto.rain());
+        entity.setEvapotranspiration(dto.evapotranspiration());
+        entity.setEt0FaoEvapotranspiration(dto.et0FaoEvapotranspiration());
+        entity.setTemperature2m(dto.temperature2m());
+        entity.setRelativeHumidity2m(dto.relativeHumidity2m());
+        entity.setWindSpeed10m(dto.windSpeed10m());
+        entity.setVapourPressureDeficit(dto.vapourPressureDeficit());
+        entity.setCloudCover(dto.cloudCover());
+        return entity;
+    }
 
     private Float toFloat(JsonNode node) {
         return (node == null || node.isNull()) ? null : node.floatValue();

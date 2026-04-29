@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class LocationHelper {
+    Long locationId;
     Float latitude;
     Float longitude;
 }
