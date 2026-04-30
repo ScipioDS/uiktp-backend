@@ -57,4 +57,10 @@ public class WeatherAPIFetchingController {
     public List<FullWeatherDataDTO> getFullWeatherData(@PathVariable Long locationId) throws Exception {
         return weatherDataService.acquireFullHourlyDataDTO(locationId);
     }
+
+
+    @GetMapping("/full-db/{locationId}")
+    public List<FullWeatherDataDTO> getFullWeatherDataFromDB(@PathVariable Long locationId) throws Exception {
+        return weatherDataService.getFullWeatherDataFromDB(locationId);
+    }
 }

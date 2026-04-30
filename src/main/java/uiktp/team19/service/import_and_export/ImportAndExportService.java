@@ -33,13 +33,13 @@ public class ImportAndExportService {
                 if (row == null) continue;
 
                 String name = getString(row.getCell(0));
-                Integer latitude = getInteger(row.getCell(1));
-                Integer longitude = getInteger(row.getCell(2));
+                Double latitude = getDouble(row.getCell(1));
+                Double longitude = getDouble(row.getCell(2));
 
                 Location location = new Location();
                 location.setName(name);
-                location.setLatitude((double) latitude);
-                location.setLongitude((double) longitude);
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
                 location.setIsPredefined(true);
 
                 locations.add(location);
@@ -59,13 +59,36 @@ public class ImportAndExportService {
         };
     }
 
-    private Integer getInteger(Cell cell) {
+    private Double getDouble(Cell cell) {
         if (cell == null) return null;
 
-        return switch (cell.getCellType()) {
-            case NUMERIC -> (int) cell.getNumericCellValue();
-            case STRING -> Integer.parseInt(cell.getStringCellValue());
+        Double value = switch (cell.getCellType()) {
+            case NUMERIC -> cell.getNumericCellValue();
+            case STRING -> {
+                try {
+                    String raw = cell.getStringCellValue().trim();
+                    // Strip trailing .0 from numeric-looking strings
+                    if (raw.endsWith(".0")) {
+                        raw = raw.substring(0, raw.length() - 2);
+                    }
+                    yield Double.parseDouble(raw);
+                } catch (NumberFormatException e) {
+                    yield null;
+                }
+            }
             default -> null;
         };
+
+        if (value == null) return null;
+
+        // Convert implied decimal: 410319 -> 41.0319
+        if (value > 90 || value < -90) {
+            value = value / 10000.0;
+        }
+
+        // Clamp to [-90, 90] range as safety net
+        value = Math.max(-90.0, Math.min(90.0, value));
+
+        return value;
     }
 }

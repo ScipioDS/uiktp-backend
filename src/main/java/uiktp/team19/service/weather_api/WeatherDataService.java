@@ -169,7 +169,43 @@ public class WeatherDataService {
         return entity;
     }
 
+    private FullWeatherDataDTO toDto(FullWeatherData data) {
+        return new FullWeatherDataDTO(
+                data.getDateTime(),
+                data.getLocation().getLatitude().floatValue(),
+                data.getLocation().getLongitude().floatValue(),
+                data.getSoilTemperature0cm(),
+                data.getSoilTemperature6cm(),
+                data.getSoilTemperature18cm(),
+                data.getSoilTemperature54cm(),
+                data.getSoilMoisture0To1cm(),
+                data.getSoilMoisture1To3cm(),
+                data.getSoilMoisture3To9cm(),
+                data.getSoilMoisture9To27cm(),
+                data.getSoilMoisture27To81cm(),
+                data.getPrecipitationProbability(),
+                data.getRain(),
+                data.getEvapotranspiration(),
+                data.getEt0FaoEvapotranspiration(),
+                data.getTemperature2m(),
+                data.getRelativeHumidity2m(),
+                data.getWindSpeed10m(),
+                data.getVapourPressureDeficit(),
+                data.getCloudCover()
+        );
+    }
+
     private Float toFloat(JsonNode node) {
         return (node == null || node.isNull()) ? null : node.floatValue();
+    }
+
+    public List<FullWeatherDataDTO> getFullWeatherDataFromDB(Long locationId) {
+        Location location = this.locationService.findById(locationId);
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(30);
+        return fullWeatherDataRepository.findAllByLocation(location)
+                .stream()
+                .filter(e -> !e.getDateTime().isBefore(cutoff))
+                .map(this::toDto)
+                .toList();
     }
 }

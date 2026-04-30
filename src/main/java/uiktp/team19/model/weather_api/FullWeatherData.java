@@ -1,5 +1,6 @@
 package uiktp.team19.model.weather_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,5 +44,6 @@ public class FullWeatherData {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
+    @JsonIgnore
     private Location location;
 }
