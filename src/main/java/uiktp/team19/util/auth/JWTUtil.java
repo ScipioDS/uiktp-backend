@@ -10,6 +10,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JWTUtil {
@@ -17,11 +18,12 @@ public class JWTUtil {
     @Value("${jwt_secret}")
     private String secret;
 
-    public String generateToken(String username) throws
+    public String generateToken(String username, List<String> roles) throws
             IllegalArgumentException, JWTCreationException {
         return JWT.create()
                 .withSubject("User Details")
                 .withClaim("username", username)
+                .withClaim("roles", roles)
                 .withIssuedAt(new Date())
                 .withIssuer("UIKTPTEAM19")
                 .sign(Algorithm.HMAC256(secret));

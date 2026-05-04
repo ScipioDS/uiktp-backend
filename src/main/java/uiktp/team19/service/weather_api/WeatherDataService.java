@@ -208,4 +208,13 @@ public class WeatherDataService {
                 .map(this::toDto)
                 .toList();
     }
+
+    public List<FullWeatherData> getYearlyFullWeatherDataFromDB(Long locationId) {
+        Location location = this.locationService.findById(locationId);
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(365);
+        return fullWeatherDataRepository.findAllByLocation(location)
+                .stream()
+                .filter(e -> !e.getDateTime().isBefore(cutoff))
+                .toList();
+    }
 }

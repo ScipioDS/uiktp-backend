@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +21,9 @@ import uiktp.team19.util.auth.JWTUtil;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,7 +46,7 @@ public class AuthController {
         user.setRoles(new HashSet<>(Collections.singleton(userRole)));
 
         user = userRepo.save(user);
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(), List.of("ROLE_USER"));
         return Collections.singletonMap("jwt-token", token);
     }
 
@@ -53,9 +57,14 @@ public class AuthController {
         try{
             UsernamePasswordAuthenticationToken authInputToken =
                     new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword());
-            authenticationManager.authenticate(authInputToken);
+//            authenticationManager.authenticate(authInputToken);
+            Authentication auth = authenticationManager.authenticate(authInputToken);
 
-            String token = jwtUtil.generateToken(body.getUsername());
+            List<String> roles = auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+            String token = jwtUtil.generateToken(body.getUsername(), roles);
             return Collections.singletonMap("jwt-token",token);
         } catch(AuthenticationException authExc){
             throw new RuntimeException("Invalid username/password.");
