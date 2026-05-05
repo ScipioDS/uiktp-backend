@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class UiktpBackendApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(UiktpBackendApplication.class, args);
     }
 
